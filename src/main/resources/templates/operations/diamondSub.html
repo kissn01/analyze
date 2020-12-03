@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>钻石统计--YMCX</title>
+
+    <!--日期css-->
+    <link href="http://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/picker/css/daterangepicker.css}">
+    <link rel="stylesheet" th:href="@{/picker/css/htmleaf-demo.css}">
+    <style type="text/css">
+        .demo {
+            position: relative;
+        }
+
+        .demo i {
+            position: absolute;
+            bottom: 10px;
+            right: 24px;
+            top: auto;
+            cursor: pointer;
+        }
+    </style>
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" th:href="@{/vendors/iconfonts/mdi/css/materialdesignicons.min.css}">
+    <link rel="stylesheet" th:href="@{/vendors/css/vendor.bundle.base.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="shortcut icon" th:href="@{/images/favicon.png}" />
+
+
+</head>
+
+<body>
+<div class="container-scroller">
+    <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+        <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
+            <a class="navbar-brand brand-logo" href="javascript:void(0);"><img th:src="@{/images/logo.svg}" alt="logo" /></a>
+            <!--<a class="navbar-brand brand-logo-mini" href="javascript:void(0);"><img th:src="@{/images/logo.mini.svg}" alt="logo" /></a>-->
+        </div>
+
+        <div class="navbar-menu-wrapper d-flex align-items-stretch">
+            <!--搜索框-->
+            <div class="search-field d-none d-md-block">
+                <form class="d-flex align-items-center h-100" action="#">
+                    <div class="input-group">
+                        <div class="input-group-prepend bg-transparent">
+                            <i class="input-group-text border-0 mdi mdi-magnify"></i>
+                        </div>
+                        <input type="text" class="form-control bg-transparent border-0" placeholder="搜索">
+                    </div>
+                </form>
+            </div>
+            <!--标签-->
+            <ul class="navbar-nav navbar-nav-right">
+                <li class="nav-item nav-profile dropdown">
+                    <a class="nav-link dropdown-toggle" id="profileDropdown" href="#" data-toggle="dropdown" aria-expanded="false">
+                        <!--头像-->
+                        <div class="nav-profile-img">
+                            <img th:src="@{/images/faces/face1.jpg}" alt="image">
+                            <span class="availability-status online"></span>
+                        </div>
+                        <div class="nav-profile-text">
+                            <p class="mb-1 text-black" th:text="${session.user}">小丶kiss</p>
+                        </div>
+                    </a>
+                    <div class="dropdown-menu navbar-dropdown" aria-labelledby="profileDropdown">
+                        <a class="dropdown-item" href="#">
+                            <i class="mdi mdi-cached mr-2 text-success"></i> 权限管理
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="/logout">
+                            <i class="mdi mdi-logout mr-2 text-primary"></i> 切换用户
+                        </a>
+                    </div>
+                </li>
+                <!--全屏-->
+                <li class="nav-item d-none d-lg-block full-screen-link">
+                    <a class="nav-link">
+                        <i class="mdi mdi-fullscreen" id="fullscreen-button"></i>
+                    </a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link count-indicator dropdown-toggle" id="messageDropdown" href="#" data-toggle="dropdown" aria-expanded="false">
+                        <i class="mdi mdi-email-outline"></i>
+                        <span class="count-symbol bg-warning"></span>
+                    </a>
+                    <!--邮件-->
+                    <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="messageDropdown">
+                        <h6 class="p-3 mb-0">邮件</h6>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item preview-item">
+                            <div class="preview-thumbnail">
+                                <img th:src="@{/images/faces/face4.jpg}" alt="image" class="profile-pic">
+                            </div>
+                            <div class="preview-item-content d-flex align-items-start flex-column justify-content-center">
+                                <h6 class="preview-subject ellipsis mb-1 font-weight-normal">Mark 给你发的邮件</h6>
+                                <p class="text-gray mb-0">
+                                    1分钟前
+                                </p>
+                            </div>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item preview-item">
+                            <div class="preview-thumbnail">
+                                <img th:src="@{/images/faces/face2.jpg}" alt="image" class="profile-pic">
+                            </div>
+                            <div class="preview-item-content d-flex align-items-start flex-column justify-content-center">
+                                <h6 class="preview-subject ellipsis mb-1 font-weight-normal">Cregh 给你发的邮件</h6>
+                                <p class="text-gray mb-0">
+                                    15 分钟前
+                                </p>
+                            </div>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item preview-item">
+                            <div class="preview-thumbnail">
+                                <img th:src="@{/images/faces/face3.jpg}" alt="image" class="profile-pic">
+                            </div>
+                            <div class="preview-item-content d-flex align-items-start flex-column justify-content-center">
+                                <h6 class="preview-subject ellipsis mb-1 font-weight-normal">配置文件更新照片</h6>
+                                <p class="text-gray mb-0">
+                                    18 分钟前
+                                </p>
+                            </div>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <h6 class="p-3 mb-0 text-center">4 条新消息</h6>
+                    </div>
+                </li>
+                <!--消息-->
+                <li class="nav-item dropdown">
+                    <a class="nav-link count-indicator dropdown-toggle" id="notificationDropdown" href="#" data-toggle="dropdown">
+                        <i class="mdi mdi-bell-outline"></i>
+                        <span class="count-symbol bg-danger"></span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="notificationDropdown">
+                        <h6 class="p-3 mb-0">通知</h6>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item preview-item">
+                            <div class="preview-thumbnail">
+                                <div class="preview-icon bg-success">
+                                    <i class="mdi mdi-calendar"></i>
+                                </div>
+                            </div>
+                            <div class="preview-item-content d-flex align-items-start flex-column justify-content-center">
+                                <h6 class="preview-subject font-weight-normal mb-1">今天的事件</h6>
+                                <p class="text-gray ellipsis mb-0">
+                                    只是提醒你今天有个活动
+                                </p>
+                            </div>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item preview-item">
+                            <div class="preview-thumbnail">
+                                <div class="preview-icon bg-warning">
+                                    <i class="mdi mdi-settings"></i>
+                                </div>
+                            </div>
+                            <div class="preview-item-content d-flex align-items-start flex-column justify-content-center">
+                                <h6 class="preview-subject font-weight-normal mb-1">设置</h6>
+                                <p class="text-gray ellipsis mb-0">
+                                    更新设置
+                                </p>
+                            </div>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item preview-item">
+                            <div class="preview-thumbnail">
+                                <div class="preview-icon bg-info">
+                                    <i class="mdi mdi-link-variant"></i>
+                                </div>
+                            </div>
+                            <div class="preview-item-content d-flex align-items-start flex-column justify-content-center">
+                                <h6 class="preview-subject font-weight-normal mb-1">启动管理</h6>
+                                <p class="text-gray ellipsis mb-0">
+                                    新管理!
+                                </p>
+                            </div>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <h6 class="p-3 mb-0 text-center">查看所有的通知</h6>
+                    </div>
+                </li>
+                <!--退出-->
+                <li class="nav-item nav-logout d-none d-lg-block">
+                    <a class="nav-link" href="#">
+                        <i class="mdi mdi-power"></i>
+                    </a>
+                </li>
+                <li class="nav-item nav-settings d-none d-lg-block">
+                    <a class="nav-link" href="#">
+                        <i class="mdi mdi-format-line-spacing"></i>
+                    </a>
+                </li>
+            </ul>
+            <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-toggle="offcanvas">
+                <span class="mdi mdi-menu"></span>
+            </button>
+        </div>
+    </nav>
+    <!-- left -->
+    <div class="container-fluid page-body-wrapper">
+        <!-- partial:partials/_sidebar.html -->
+        <nav class="sidebar sidebar-offcanvas" id="sidebar">
+            <ul class="nav">
+                <li class="nav-item nav-profile">
+                    <a href="#" class="nav-link">
+                        <div class="nav-profile-image">
+                            <img th:src="@{/images/faces/face1.jpg}" alt="profile">
+                            <span class="login-status online"></span>
+                            <!--change to offline or busy as needed-->
+                        </div>
+                        <div class="nav-profile-text d-flex flex-column">
+                            <span class="font-weight-bold mb-2" th:text="${session.user}">小丶kiss</span>
+                            <span class="text-secondary text-small">开发部</span>
+                        </div>
+                        <i class="mdi mdi-bookmark-check text-success nav-profile-badge"></i>
+                    </a>
+                </li>
+                <!--主页-->
+                <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <span class="menu-title">主页</span>
+                        <i class="mdi mdi-home menu-icon"></i>
+                    </a>
+                </li>
+                <!--游戏运营数据-->
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="collapse" href="#operations" aria-expanded="false" aria-controls="ui-basic">
+                        <span class="menu-title">游戏运营数据</span>
+                        <i class="menu-arrow"></i>
+                        <i class="mdi mdi-format-wrap-inline menu-icon"></i>
+                    </a>
+                    <div class="collapse" id="operations">
+                        <ul class="nav flex-column sub-menu">
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/operations/pandect}">运营数据总览</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/operations/dataCharge}">用户长期回本情况</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/operations/analysisPay}">用户付费解析</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/operations/caseCharge}">用户充值情况</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/operations/myRetention}">用户留存</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/operations/registByHour}">新进数据</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/operations/onlineInfo}">实时在线人数</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/operations/diamond}" >钻石基本情况</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/operations/subDiamond}" >钻石消耗途径分布</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/operations/gold}">金币基本情况</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/operations/shopping}">商城购买统计</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/operations/storeBuy}">商城直购统计</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <!--付费用户信息-->
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="collapse" href="#payUser" aria-expanded="false" aria-controls="gameconf-pages">
+                        <span class="menu-title">付费用户</span>
+                        <i class="menu-arrow"></i>
+                        <i class="mdi mdi-buffer menu-icon"></i>
+                    </a>
+                    <div class="collapse" id="payUser">
+                        <ul class="nav flex-column sub-menu">
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/payUser/payRetention}">付费用户留存</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/payUser/levelPayUser}">付费用户等级分布</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/payUser/passPayUser}">付费用户关卡开启次数</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/payUser/diamodPayUser}">付费用户钻石消耗途径</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/payUser/naturalPayUser}">付费用户遗物抽取总览</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                    <!--关卡分析-->
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="collapse" href="#customsPass" aria-expanded="false" aria-controls="gameconf-pages">
+                        <span class="menu-title">关卡分析</span>
+                        <i class="menu-arrow"></i>
+                        <i class="mdi mdi-buffer menu-icon"></i>
+                    </a>
+                    <div class="collapse" id="customsPass">
+                        <ul class="nav flex-column sub-menu">
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/plann/newPlay}">新手阶段关卡通过情况</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/plann/userSum}">玩家达到的最高关卡统计</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/plann/planClassify}">玩家各类关卡的参与情况</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/plann/coinSurvival}">金币副本生存时间区间分布</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/plann/materialsSurvival}">材料副本生存时间区间分布</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/plann/passCustoms}">关卡通关分析</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/plann/openCustoms}">关卡开启区间分布</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <!--遗物分析-->
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="collapse" href="#naturalData" aria-expanded="false" aria-controls="gameconf-pages">
+                        <span class="menu-title">遗物分析</span>
+                        <i class="menu-arrow"></i>
+                        <i class="mdi mdi-buffer menu-icon"></i>
+                    </a>
+                    <div class="collapse" id="naturalData">
+                        <ul class="nav flex-column sub-menu">
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/natural/lottery}">玩家遗物抽取情况总览</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/natural/hold}">玩家遗物持有情况总览</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/natural/output}">当日遗物产出情况</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/natural/suit}">遗物套装等级情况</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/natural/commonFight}">遗物战力加成统计</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/natural/holdByUser}">玩家持有遗物详情</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <!--广告分析-->
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="collapse" href="#viewAD" aria-expanded="false" aria-controls="gameconf-pages">
+                        <span class="menu-title">广告分析</span>
+                        <i class="menu-arrow"></i>
+                        <i class="mdi mdi-buffer menu-icon"></i>
+                    </a>
+                    <div class="collapse" id="viewAD">
+                        <ul class="nav flex-column sub-menu">
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/viewAD/play}">广告播放详情</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/viewAD/revive}">广告复活详情</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/viewAD/dial}">广告转盘详情</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/viewAD/physicalPower}">广告体力恢复详情</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/viewAD/treasureBox}">商城宝箱领取详情</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/viewAD/signIn}">签到详情</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <!--玩家基本信息-->
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="collapse" href="#userBehavior" aria-expanded="true" aria-controls="ui-basic">
+                        <span class="menu-title">玩家基本信息</span>
+                        <i class="menu-arrow"></i>
+                        <i class="mdi mdi-anchor menu-icon"></i>
+                    </a>
+                    <div class="collapse" id="userBehavior">
+                        <ul class="nav flex-column sub-menu">
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/user/userLevel}">玩家等级分布</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/user/myData}">指定用户信息查询</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/user/itemFlow}">指定用户道具查询</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/user/charge}">指定用户充值查询</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/user/retentionPlan}">留存用户关卡成长跟踪</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/user/queryLevel}">留存用户等级成长跟踪</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/user/onlineTime}">在线时长区间分布</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/user/fightHero}">玩家出战英雄统计</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/user/plannFightHero}">英雄关卡出战情况统计</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <!--邮件发送-->
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="collapse" href="#sendMail" aria-expanded="false" aria-controls="gameconf-pages">
+                        <span class="menu-title">邮件工具</span>
+                        <i class="menu-arrow"></i>
+                        <i class="mdi mdi-anchor menu-icon"></i>
+                    </a>
+                    <div class="collapse" id="sendMail">
+                        <ul class="nav flex-column sub-menu">
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/util/sendMail}">邮件发送</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/util/delMail}">邮件删除</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+
+        <!--main-->
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <!-- partial -->
+                <div class="main-panel">
+                            <div class="col-lg-12 stretch-card">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <form class="" id="myForm" action="subDiamond" method="post">
+                                            <!--日历-->
+                                            <div class="col-md-3  demo">
+                                                  <input type="text" id="config-demo" name="searchDate" class="form-control">
+                                                       <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                                               </div>
+                                            <!--渠道-->
+                                              <div class="col-md-3" >
+                                                <div class="form-group ">
+                                                   <div class="input-group ">
+                                                       <select class="form-control" name="platformId" id="platformId">
+                                                           <option selected="selected" disabled="disabled" style='display: none' value=' '>All</option>
+                                                           <option value="3">IOS</option>
+                                                           <option value="2">尚游官包</option>
+                                                           <option value="100">官包买量</option>
+                                                           <option value="103">官包买量1</option>
+                                                           <option value="11">OPPO</option>
+                                                           <option value="12">VIVO</option>
+                                                           <option value="13">华为</option>
+                                                           <option value="16">小米</option>
+                                                           <option value="14">九游</option>
+                                                           <option value="23">应用宝</option>
+                                                           <option value="101">taptap</option>
+                                                           <option value="30">B站</option>
+                                                           <option value="102">好游快爆</option>
+                                                           <option value="26">4399</option>
+                                                       </select>
+                                                       <button class="btn btn-gradient-primary" disabled="disabled">渠道</button>
+                                                   </div>
+                                               </div>
+                                         </div>
+                                            <!--提交-->
+                                            <div class="col-md-3">
+                                                <button type="submit" class="btn btn-gradient-danger ">查看</button>
+                                            </div>
+                                        </form>
+                                        <table class="table table-bordered">
+                                            <thead>
+                                            <tr class="table-info">
+                                                <th>日期</th>
+                                                <th>钻石总消耗</th>
+                                                <th>探索遗物</th>
+                                                <th>商城购买</th>
+                                                <th>钻石兑金币</th>
+                                                <th>钻石复活</th>
+                                                <th>购买挑战次数</th>
+                                                <th>勋章等级</th>
+                                                <th>开启宝箱</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr th:each="key:${list}" class="table-warning">
+                                                <td th:text="${key.checkDate}">0</td>
+                                                <td th:text="${key.subSum}">0</td>
+                                                <td th:text="${key.subNatural}">0</td>
+                                                <td th:text="${key.subShop}">0</td>
+                                                <td th:text="${key.subGold}">0</td>
+                                                <td th:text="${key.subRevice}">0</td>
+                                                <td th:text="${key.subChallenge}">0</td>
+                                                <td th:text="${key.subMedal}">0</td>
+                                                <td th:text="${key.subOpenBox}">0</td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> <!--row end-->
+                    </div><!--content-wrapper end-->
+                    <!-- content-wrapper ends -->
+                    <footer class="footer">
+                        <div style="text-align: center;font-size: 15px;">
+                            <span>Copyright &copy;2019 版权所有
+                                <i class="mdi mdi-heart text-danger"></i>
+                                <a href="http://www.gdreamart.com" target="_blank">游梦初心</a>
+                                文化网络有限公司
+                            </span>
+                        </div>
+                    </footer> <!--footer end-->
+
+                    </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+
+<!-- plugins:js -->
+<script th:src="@{/vendors/js/vendor.bundle.base.js}"></script>
+<script th:src="@{/vendors/js/vendor.bundle.addons.js}"></script>
+<script th:src="@{/js/off-canvas.js}"></script>
+<script th:src="@{/js/misc.js}"></script>
+<script th:src="@{/js/dashboard.js}"></script>
+<!--日历-->
+<script src="http://cdn.bootcss.com/jquery/1.11.0/jquery.min.js" type="text/javascript"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<script th:src="@{/picker/js/moment.js}"></script>
+<script th:src="@{/picker/js/daterangepicker.js}"></script>
+<script th:src="@{/picker/js/ready.js}"></script>
+</body>
+
+</html>

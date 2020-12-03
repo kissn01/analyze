@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yoooum.dao.ViewADDao">
+
+       <!--1.广告播放情况-->
+       <select id="play"  resultType="com.yoooum.domain.FightHero">
+            SELECT TYPE AS roleId,
+            COUNT(*) AS fightNum,
+            COUNT(DISTINCT uin) AS name
+            FROM ${tbName}
+            WHERE ad_privilege = 0
+            <if test="platformId!=null and platformId!=0">
+               AND platform_id=#{platformId}
+            </if>
+            GROUP BY TYPE
+            ORDER BY TYPE
+        </select>
+        <!--2.广告播放总人数-->
+        <select id="playNum" resultType="java.lang.Integer">
+          SELECT COUNT(DISTINCT uin)FROM ${tbName}
+          WHERE ad_privilege = 0
+          <if test="platformId!=null and platformId!=0">
+              AND platform_id=#{platformId}
+          </if>
+        </select>
+
+    <!--3.局内重随广告(type=7)-->
+    <!--<select id="playSkill" resultType="com.yoooum.domain.SkillViewAD">-->
+        <!--SELECT COUNT(*) AS skillCount,-->
+        <!--COUNT(DISTINCT uin) AS skillSum,-->
+        <!--COUNT(DISTINCT battle_id) AS battleIdCount-->
+        <!--FROM ${tbName}-->
+        <!--WHERE ad_privilege = 0-->
+        <!--<if test="platformId!=null and platformId!=0">-->
+            <!--AND platform_id=#{platformId}-->
+        <!--</if>-->
+    <!--</select>-->
+
+    <!--转盘和宝箱广告-->
+    <select id="dial" resultType="com.yoooum.domain.DialViewAD">
+        select  IFNULL(sum(t.couns>0),0) as properSum,IFNULL(sum(t.couns=1),0) as proper01,
+        IFNULL(sum(t.couns=2),0) as proper02,IFNULL(sum(t.couns=3),0) as proper03,
+        IFNULL(sum(t.couns=4),0) as proper04,IFNULL(sum(t.couns=5),0) as proper05,
+        IFNULL(sum(t.couns>5),0) as properTop05
+        from ( select count(*) as couns from ${tbName}
+        where type=#{type}  and ad_privilege = 0
+        <if test="platformId!=null and platformId!=0">
+            and platform_id=#{platformId}
+        </if>
+        group by uin) as t
+    </select>
+
+</mapper>
+
+

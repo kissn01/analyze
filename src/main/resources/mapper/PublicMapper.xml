@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yoooum.dao.PublicDao">
+
+    <!--dau-->
+    <select id="queryDau" resultType="java.lang.Integer">
+        SELECT IFNULL(COUNT(DISTINCT uin), 0)
+        FROM ${tbName}
+        <where>
+            <if test="platformId!=null and platformId!=0">
+                AND platform_id=#{platformId}
+            </if>
+        </where>
+    </select>
+
+    <!--注册玩家-->
+    <select id="queryRegister" resultType="java.lang.Integer">
+            select IFNULL(count(*) , 0)
+            from ${tbName}
+            <where>
+                <if test="platformId!=null and platformId!=0">
+                    platform_id=#{platformId}
+                </if>
+            </where>
+    </select>
+    <!--当天总充值总金额-->
+    <select id="queryCharge" resultType="java.lang.Integer">
+            select IFNULL(sum(money), 0)
+            from  ${tbName}
+            <where>
+                <if test="platformId!=null and platformId!=0">
+                    platform_id=#{platformId}
+                </if>
+            </where>
+
+    </select>
+    <!--充值玩家数量-->
+    <select id="queryChargeNum" resultType="java.lang.Integer">
+        SELECT IFNULL(COUNT(DISTINCT uin), 0)
+        FROM ${tbName}
+        <where>
+            <if test="platformId!=null and platformId!=0">
+                platform_id=#{platformId}
+            </if>
+        </where>
+    </select>
+
+    <!--新增玩家充值人数-->
+    <select id="queryChargeNumByReg" resultType="int">
+        SELECT IFNULL(COUNT(DISTINCT uin), 0)
+        FROM ${tbName}
+        WHERE  register_time &gt;= #{begTime}
+        AND    register_time &lt;= #{endTime}
+        <if test="platformId!=null and platformId!=0">
+            AND  platform_id=#{platformId}
+        </if>
+    </select>
+
+    <!--当天总充值总金额-->
+    <select id="queryNewCharge" resultType="int">
+        SELECT IFNULL(SUM(money), 0)
+        FROM  ${tbName}
+        WHERE  register_time &gt;= #{begTime}
+        AND    register_time &lt;= #{endTime}
+        <if test="platformId!=null and platformId!=0">
+            AND platform_id=#{platformId}
+        </if>
+    </select>
+
+    <!--新增玩家uin-->
+    <select id="queryRegUin" resultType="java.lang.Integer">
+        SELECT uin FROM  ${tbName}
+        <where>
+            <if test="platformId!=null and platformId!=0">
+                platform_id=#{platformId}
+            </if>
+        </where>
+    </select>
+    <!--充值玩家数量-->
+    <select id="queryLoginUin" resultType="java.lang.Integer">
+        SELECT uin FROM ${tbName}
+        <where>
+            <if test="platformId!=null and platformId!=0">
+                platform_id=#{platformId}
+            </if>
+        </where>
+        GROUP BY uin
+        ORDER BY uin
+
+    </select>
+    <!--查询指定用户闯关情况-->
+    <select id="queryFightByUin"  parameterType="java.util.List" resultType="com.yoooum.domain.Fight">
+        SELECT  uin,hero_id,arrive_stage,map_id,begin_fight,end_fight,revive
+        FROM  ${tbName}
+        WHERE uin in
+        <foreach collection="uinList" index="index" item="uin" open="(" close=")" separator=",">
+            #{uin}
+        </foreach>
+        order by uin
+
+    </select>
+
+
+</mapper>

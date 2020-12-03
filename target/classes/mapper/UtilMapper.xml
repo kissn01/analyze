@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yoooum.dao.UtilDao">
+    <!--查询流失或留存用户的 失败关卡ID 地图id 和 战力-->
+    <select id="loserList" resultType="com.yoooum.domain.LoserUser">
+        SELECT uin,
+        begin_fight as begFight,
+        end_fight  as endFight,
+        arrive_stage as levelId,
+        map_id as mapId
+        FROM ${tbName}
+        where uin= #{uin}
+    </select>
+
+    <!--查询指定用户闯关情况-->
+    <select id="queryLoserByUin"  parameterType="java.util.List" resultType="com.yoooum.domain.LoserUser">
+        SELECT   uin,begin_fight as begFight,end_fight  as endFight,arrive_stage as levelId,map_id as mapId
+        FROM  ${tbName}
+        WHERE uin in
+        <foreach collection="uinList" index="index" item="uin" open="(" close=")" separator=",">
+            #{uin}
+        </foreach>
+        order by uin
+    </select>
+
+    <!--批量查询指定用户闯关情况-->
+    <select id="queryFightByUins"  parameterType="java.util.List" resultType="com.yoooum.domain.LoserUser">
+        select uin,begin_fight as begFight
+        from  ${tbName}
+        where arrive_stage = 108050
+        and uin in
+        <foreach collection="uinList" index="index" item="uin" open="(" close=")" separator=",">
+            #{uin}
+        </foreach>
+        order by uin
+    </select>
+
+    <!--单个查询指定用户闯关情况-->
+    <select id="queryFightByUin"  resultType="com.yoooum.domain.LoserUser">
+        select uin,min(begin_fight) as begFight
+        from  ${tbName}
+        where arrive_stage = 108050
+        and uin = #{uin}
+    </select>
+
+    <!--查询首次通关第七章或第八章玩家战力-->
+    <select id="queryFightUsers" resultType="com.yoooum.domain.Plann">
+        SELECT uin AS levelId,
+        begin_fight AS userNum
+        FROM ${tbName}
+        WHERE arrive_stage = #{chapterId}
+        AND register_time >1547654399
+        GROUP BY uin
+        ORDER BY uin,ts
+    </select>
+
+</mapper>

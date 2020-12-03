@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yoooum.dao.ExportUinDao">
+    <!--导出当日付费用户的UID-->
+    <select id="exportChargeUin" resultType="java.lang.Integer">
+        SELECT DISTINCT uin FROM ${tbName}
+        <where>
+            <if test="platformId!=null and platformId!=0">
+                platform_id=#{platformId}
+            </if>
+        </where>
+
+        ORDER BY uin
+    </select>
+
+    <select id="exportPlannUin" resultType="java.lang.Integer">
+        SELECT uin
+        FROM
+        (
+            SELECT MAX(arrive_stage) AS level_ids,uin
+            FROM ${tbName}
+            <where>
+                <if test="platformId!=null">
+                    platform_id=#{platformId}
+                </if>
+                <if test="checkId==1">
+                    and  register_time &gt;= #{begRegTs}
+                    and  register_time &lt;= #{endRegTs}
+                </if>
+            </where>
+            GROUP BY uin
+        ) AS a
+        WHERE a.level_ids = #{levelId}
+        ORDER BY uin
+    </select>
+
+    <!--导出每小时注册uin-->
+    <select id="exportHourUin" resultType="java.lang.Integer">
+        SELECT uin FROM ${tbName}
+        WHERE ts &gt;= #{begDay}
+        AND  ts &lt;= #{endDay}
+        <if test="platformId!=null and platformId!=0">
+            AND platform_id=#{platformId}
+        </if>
+        ORDER BY uin
+    </select>
+</mapper>

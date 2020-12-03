@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yoooum.dao.PayUserDao">
+
+    <!--当日付费玩家人数-->
+    <select id="queryPayUser" resultType="java.lang.Integer">
+        select IFNULL(count(distinct uin) , 0)
+        from ${tbName}
+        <where>
+            <if test="platformId!=null and platformId!=0">
+                platform_id=#{platformId}
+            </if>
+        </where>
+    </select>
+
+    <!--当日付费玩家uin-->
+    <select id="getUinList" resultType="java.lang.Integer">
+        SELECT uin FROM  ${tbName}
+        <where>
+            <if test="platformId!=null and platformId!=0">
+                platform_id=#{platformId}
+            </if>
+        </where>
+        group by uin
+        order by uin
+    </select>
+
+    <!--付费玩家等级-->
+    <select id="queryUserLevel"  resultType="java.lang.Integer">
+        select  max(level_after)
+        from ${tbName}
+        WHERE uin =#{uin}
+    </select>
+
+    <!--付费玩家关卡开启次数-->
+    <select id="queryUserPass"  resultType="java.lang.Integer">
+        select  count(*)
+        from ${tbName}
+        WHERE uin =#{uin}
+    </select>
+
+    <!--批量查询指定用户钻石消耗-->
+    <select id="queryPayDiamod"  parameterType="java.util.List" resultType="com.yoooum.domain.Plann">
+        select reason as levelId,
+        sum(change_count) as userNum
+        from ${tbName}
+        where uin in
+        <foreach collection="uinList" index="index" item="uin" open="(" close=")" separator=",">
+            #{uin}
+        </foreach>
+        group by reason
+    </select>
+
+    <!--批量获取付费用户遗物抽取情况-->
+    <select id="queryPayNatural"  parameterType="java.util.List" resultType="com.yoooum.domain.Natural">
+        select cost_type as costType,
+        count(distinct uin) as prosonNum,
+        sum(cost_num) moneys,
+        sum(cost_num)/count(distinct uin) as avgMoney
+        from ${tbName}
+        where tabID=#{chapterId}
+        and uin in
+        <foreach collection="uinList" index="index" item="uin" open="(" close=")" separator=",">
+            #{uin}
+        </foreach>
+        group by cost_type
+    </select>
+
+
+</mapper>

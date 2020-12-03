@@ -1,0 +1,419 @@
+#include "../Data/CommData.tars"
+
+module Account 
+{
+
+	
+    //玩家账号唯一标识结构体
+	struct TAccountID
+	{
+		0	require 	unsigned int        		    uUin=0;                   // Uin
+		1	require 	string 				            sOpenID;                // openid
+		2	require 	int 				            iOpenPlatType;          // 参见E_OPEN_PLAT_TYPE
+		3	require 	int 				            iOSType;                // 参见E_MOBILE_PLAT_TYPE
+		4	require 	int 				            iZoneID;	
+	};
+	
+	struct TMobilePhoneInfo
+    {
+       0     optional    string              sOSType;                           // 操作系统类型           
+       1     optional    string              sOSVersion;                        // 系统版本          
+       2     optional    string              sPhoneMode;                        // 手机型号            
+       3     optional    string              sTeleComOper;                      // 手机制式
+       4     optional    int                 iNetworkType;                      // 参见ENETWORK_TYPE
+       5     optional    int                 iScreenHight;
+       6     optional    int                 iScreenWidth;
+       7     optional    int                 iScreenDensity;
+       8     optional    string              strCpuHardware;                     // cpu类型|频率|核数
+       9     optional    int                 iMemory;                            // 内存信息单位M
+       10    optional    string              sMacAddr;                           // 网卡地址
+       11    optional    string              sIMEI;                              // IMEI
+       12    optional    int                 iDeviceQuality;                     // 画质
+    };
+	
+	struct TTokenInfo
+	{
+	   0     optional    string              sAccessToken;                       //登录token
+	   1     optional    string              sPayToken;                          //PayToken
+	   2     optional    string              sPf;                                //支付签名pf
+	   3     optional    string              sPfKey;                             //支付签名pfkey
+	   4     optional    string              sWeChatCode;                        //微信小游戏登录code
+	};
+ 
+ 
+    //玩家在所有游戏中的数据
+    struct TPlayerRoleInfo
+    {
+		0	optional 	unsigned int           uUin;                            //基本数据
+		1   optional    int                    iZoneID;                         //区id
+		2   optional    string                 sZoneName;                       //区名字
+		3   optional    unsigned int           uLastTM;                         //最后登录时间
+		4   optional    int                    iLvl;                            //玩家等级
+    };
+    
+	struct TDBBaseInfo
+	{
+		0	 optional    int                    iNumber = 0;                  //当前属性数量
+		1    optional    vector<int>            BaseValue;                    //玩家基础数据 DB_MAX_BASE_INFO_COUNT
+	};
+	
+	//某些道具存储结构
+	struct TPropDbInfo
+	{
+		0   optional    int                    iResID;                  //资源id，配置在item表中
+		1   optional    int                    iUkey;                   //副key， （成品表示的是品质值）
+		2   optional    unsigned int           uCount;                  //数量
+	};
+	
+	struct TUserBaseInfo
+	{
+		0 	optional 	string                          sName="";              	// 昵称
+		1 	optional 	short              	            nGeneder;             	// 性别
+		2	optional 	string      	                sFaceUrl;             	// 头像URL
+		3   optional    TDBBaseInfo                     BaseInfo;               // 角色基础数据信息
+		4   optional    string                          sSign;                  // 个性签名
+		5   optional    string                          sSecondName;            // 小名
+		6   optional    string                          sFaceFrame;             // 头像框
+		7   optional    int                             iSuffixName=0;          // 有重名的时候返回后缀
+		
+	};
+	
+	struct TDailyEvent
+	{
+		0 	optional 	  short              	uTitleID;             	//标题ID
+	};
+	
+	
+	//激活码
+	struct TActiveBatchDb
+	{
+		0 optional string                              sActiveCode;           //激活码
+		1 optional long                                lUseTime;              //兑换时间
+		2 optional string                              sBatch;                //礼包批次
+	};
+	
+	struct TActiveCodeDb
+	{
+		0 optional    map<string,vector<TActiveBatchDb>>  mActiveBatchDb;     //激活码使用信息 
+	};
+	
+	//玩家购买限制的记录
+    struct TBuyStatusDb
+    {
+        0 optional int                                  iPeriodBuyNum;         //周期内的购买次数
+        1 optional int                                  iLastBuyTime;          //最后一次购买时间
+    };
+	
+	struct TBuyLimitItemStatusDb
+	{
+		0 optional int                                  iSaleId;               //商品ID
+        1 optional long                                 lCreateTime;           //出现时间
+	};
+	
+	//新手引导信息
+	struct TDBNewbieData
+	{
+		0   require    vector<short>                   vecCurrFinishedStep;    //当前强制引导已完成的节点
+		1   require    map<short,vector<short>>        mapFinishedSteps;       //强制引导已完成的步骤
+	};
+	
+	struct TExtData1
+	{
+		0   optional    TActiveCodeDb                   stActiveCodeDb;        //激活码
+		1   optional    map<int, TBuyStatusDb>          mBuyItemStatDb;        //购买限制记录
+		2   optional    vector<int>                     vecDaySelectionSaleItem;//每日精选
+		3   optional    long                            lDaySelectionTM;       //每日进行时间
+		4   optional    short                           nSilverBoxFreeTimes;   //免费抽银宝箱次数
+		5   optional    long                            lDrawSilverBoxTM;      //最后一次抽银宝箱的时间
+		6   optional    short                           nGoldBoxFreeTimes;     //免费抽金宝箱次数
+		7   optional    long                            lDrawGoldBoxTM;        //最后一次抽金宝箱的时间
+		8   optional    short                           nPurpleBoxFreeTimes;   //免费抽紫宝箱次数
+		9   optional    long                            lDrawPurpleBoxTM;      //最后一次抽紫宝箱的时间
+		10  optional    int                             iResumeVitNumByAD;     //今天看广告恢复体力次数
+		11  optional    long                            lLastResumeVitTM;      //最后一次恢复体力的时间
+		12  optional    TDBNewbieData                   stNewbieData;          //新手引导信息
+        13  optional    short                           nADTurnTableCnt;       //广告转盘次数
+        14  optional    int                             iADPoolID;             //广告奖池ID
+        15  optional    long                            lLastResumeADCntTM;    //最后一次广告转盘次数刷新时间
+		16  optional    vector<TBuyLimitItemStatusDb>   vecLimitSaleItem;      //每日限购礼包
+		17  optional    map<int,int>                    mOpenBoxHistory;       //抽宝箱历史次数
+		18  optional    vector<int>                     vecAllSvrMailRecord;   //全服邮件记录
+		19  optional    map<int, TBuyStatusDb>          mFirstBuyItemStatDb;      //首充物品购买限制记录,永远不会清除记录
+		
+	};
+	
+	
+	//DB资源物品
+	struct TDBBagResource
+	{
+		0  optional     int                             iResID;                //资源ID
+		1  optional     int                             iCount;                //叠加个数
+	};
+	
+	//DB有时间周期的资源物品
+	struct TDBBagTimerResource
+	{
+		0  optional     int                             iResID;                //资源ID
+		1  optional     unsigned int                    uTime;                 //有效时间
+	};
+	
+	struct TStorageInfo
+	{
+		0  optional     vector<TDBBagResource>          vecResource;            //物品信息      
+	};
+	
+	
+	//背包中物品信息
+	struct TDBBagInfo
+	{	
+		0  optional     vector<TDBBagResource>               vecResource;          //背包礼物物品 DB_BAG_RESOURCE_MAX
+		1  optional     vector<TDBBagTimerResource>          vecTimerResource;     //有时间周期的背包礼物物品 DB_BAG_RESOURCE_MAX
+	};
+	
+
+	
+	enum E_PROPERTIES_OPER
+	{
+		E_PROPERTIES_OPER_EQUAL = 0,   //相等
+		E_PROPERTIES_OPER_ADD   = 1,   //增加
+		E_PROPERTIES_OPER_DEL   = 2,   //减少
+	};
+	
+	struct TProperty
+	{
+		0   optional  string sPropName;        // 属性名称
+		1   optional  float  iPropValue;       // 属性值
+		2   optional  E_PROPERTIES_OPER oper;  //属性操作
+	};
+
+	//装备
+	struct  TEquipmentItemDb
+	{
+		0   optional   string              sUniqID;  //装备唯一编号ID
+		1   optional   int                 iEquipID; //装备ID
+		2   optional   int                 iLevel;   //装备等级
+		3   optional   bool                bEvaluation = false; //鉴定 0 未鉴定 1 已鉴定
+		4   optional   vector<TProperty>   vecExternalProperties; //动态属性值
+		//5   optional   vector<TProperty>   vecUpProperties; //升级增加属性值(改为读配置)
+		6   optional   int                 iPos;     //返回客户端的时候复制,服务器数据不保存
+		7   optional   bool                bNew = true;     //"新"状态标志
+	};
+	
+	struct TEquipmentInfo
+	{
+		0  optional    vector<map<int, TEquipmentItemDb>> vRoleEquipGrid;      //主角装备的格子,[身体位置,装备]
+        1  optional    map<int, vector<TEquipmentItemDb>> mEquipStore;       //装备库,key为身体位置
+	};
+	
+	struct TNaturalItemInfo
+	{
+		0  optional    int                 iID;        //天赋技能ID
+		1  optional    short               nLvl = 0;   //天赋技能等级
+	};
+	
+	struct TNaturalSlotHistoryInfo
+	{
+		0  optional   short                            nDrawRound = 1;      //轮次
+		1  optional   short                            nDrawTimes = 0;      //次数
+	};
+	
+	//天赋技能
+	struct TNaturalSkillInfo
+	{
+		0  optional   vector<TNaturalItemInfo>         vecNatural;              //天赋技能
+		//1  optional   TNaturalSlotHistoryInfo          stCommonHistory;         //普通抽奖记录
+        //2  optional   TNaturalSlotHistoryInfo          stShopHistory;           //商城抽奖记录		
+		3  optional   int                              iTotalDrawTimes = 0;     //总抽奖次数(普通)
+		4  optional   int                              iShopTotalDrawTimes = 0; //总抽奖次数(商城)
+	};
+	
+	struct TSoldierDB
+	{
+		0  optional   int                              iID;                     //士兵ID
+		1  optional   long                             lCatchTM;                //捕捉时间
+		//2  optional   long                             lCalculateTM;            //最后计算离线收益的时间
+	};
+	
+	//Soldier收集进度奖励信息
+	struct TSoldierCollectData
+	{
+		0   optional    short                             nAwardProgress;   //进度
+		1   optional    short                             nStatus;          //状态 EN_COLLECT_PROGRESS_STATUS
+	};
+	
+	//士兵数据
+	struct TSoldierInfo
+	{
+		0  optional  vector<TSoldierDB>                vecSoldierList;          //捕捉的士兵列表
+		1  optional  vector<CommData::TItemParam>      vecAwardList;            //离线收益
+		2  optional  vector<TSoldierCollectData>       vecSoldierCollectData;   //收集奖励信息
+		3  optional   long                             lCalculateTM;            //最后计算离线收益的时间
+		4  optional   long                             lLastDrawAwardTM;        //最后一次奖励时间
+	};
+	
+	//英雄数据
+	struct THeroDB
+	{
+		0 optional  int                                iID;                     //英雄ID
+		1 optional  int                                iExp;                    //英雄经验
+        2 optional  short                              nLvl;                    //英雄等级
+		3 optional  int                                iSkinId;                 //皮肤ID
+		4 optional  vector<int>                        vecSkinList;             //皮肤列表
+		5 optional  int                                iProficiency;            //熟练度
+		6 optional  vector<int>                        vecLevelUpSkill;         //升级技能
+		//7 optional  vector<int>                        vecLearnSkill;           //事件技能
+		8 optional  string                             sRoomId;                 //当前地图ID
+		//11 optional vector<int>                        vecBuff;                 //Buff
+		//12 optional vector<TProperty>                  vecProperties;           //临时属性
+		13 optional int                                iHP;                     //当前血量
+		14 optional int                                iMaxHP;                  //最大血量
+		15 optional bool                               bLock = false;           //是否已经解锁
+		
+	};
+	
+	//角色数据
+	struct THeroInfo
+	{
+		0 optional  short                              nCurHeroID;             //当前正在使用的角色ID
+		1 optional  vector<THeroDB>                    vecHeroList;            //角色列表
+		2 optional  short                              nPlayerState;           //玩家阶段状态 E_PHASE_STATE
+		3 optional  short                              nReviveCnt;             //本局使用复活次数
+		4 optional  int                                iStageLevel;            //当前关卡-层
+		5 optional  short                              nStageCnt;              //通关关卡数量
+		6 optional  int                                iPassStageLevel;        //已通关关卡
+		7 optional  long                               lReviveTM;              //最后一次复活时间
+		8 optional  short                              nDayReviveCnt;          //今天可免费复活次数
+		9 optional  short                              nDayReviveTotalCnt;     //今天复活总次数
+		
+	};
+	
+	//关卡数据
+	struct TStageDB
+	{
+		0  optional int                                iID;                    //关卡ID 
+		1  optional long                               lBeginTM;                //开始时间
+		2  optional int                                iBattelTimes;           //战斗时长
+		3  optional int                                eGameResult;            //战斗结果 E_GAME_RESULT
+		4  optional int                                iReviveCount;           //复活次数
+		5  optional double                             dScore;                 //战力
+		6  optional int                                iEventID;               //事件ID
+		7  optional int                                iChooseOption;          //选项ID
+		8 optional int                                 iEventState = 0;        //是否选择完成
+		9 optional int                                 iEventType;             //事件类型
+		10 optional map<int,vector<CommData::TItemParam>> mDropList;           //掉落记录    key为物品类型
+		11 optional int                                iDropCheckTime = 0;     //掉落用的时间校验
+		12 optional vector<int>                        vecLearnSkill;           //事件技能[事件]
+		13 optional vector<int>                        vecBuff;                 //Buff[事件]
+		14 optional vector<TProperty>                  vecProperties;           //临时属性[事件]
+		15 optional vector<CommData::TItemParam>       vecEventDropList;       //事件物品记录[事件]
+		
+	};
+
+    //宝箱信息
+    struct TBoxState
+    {
+		0  optional int                                eAwardState;            //宝箱状态 EN_AWARD_STATE
+    };
+	
+	//关卡数据
+	struct TStageInfo
+	{
+	    0  optional vector<TStageDB>                  vecStageDB;               //通关关卡数据
+		1  optional vector<int>                       vecStageChapter;          //通关章节
+		2  optional map<int, TBoxState>               mBoxAwardInfo;            //宝箱状态 key为宝箱ID
+		3  optional int                               iClearingState;           //结算标志 EN_CLEARING_STATE
+		4  optional int                               iDropCount;               //掉落计数
+		5  optional int                               iNewStageChapterId = 0;   //有新的通关章节
+		6  optional int                               iNewStageLevelId = 0;     //有新的通关层
+		7  optional long                              lCurrRoundBeginTM = 0;    //本轮开始时间
+	};
+	
+	struct TAccountData
+	{
+		0	require 	TAccountID                      stAccountID;
+		1   require     long                            lLastLoginTm;           //上次登录时间
+		2   require     long                            lCreateTime = 0;        //创建角色时间
+		3	require 	TUserBaseInfo                   stUserBaseInfo;         //玩家基础数据
+		4   optional    short                           nBan;                   //禁用
+		5   optional    long                            lBanTime;               //禁用时长
+		6   optional    TExtData1                       stExtData1;             //激活码和小游戏
+		7   optional    long                            lLastLogoutTm;          //上次登出时间
+		8   optional    TEquipmentInfo                  stEquipmentData;        //装备数据
+		9   optional    TDBBagInfo                      stBagInfo;              //资源物品
+		10  optional    TNaturalSkillInfo               stNaturalSkillData;     //天赋系统数据
+		11  optional    TSoldierInfo                    stSoldierData;          //士兵数据
+		12  optional    THeroInfo                       stHeroInfo;             //角色数据
+		13  optional    TStageInfo                      stStageInfo;            //关卡数据
+		//10   optional    TDBNewbieData                   stNewbieData;        //新手引导相关
+		
+	};
+	
+	
+	struct TUpdateField
+	{
+		0   require string                              sFieldName;
+		1   require string                              sFieldValue;
+	};
+	
+	//用户在线状态
+	struct TUserOnlineState
+	{
+		0   require     string                          sCondSvr;                //接入服务器地址
+		1   require     long                            lConnID;                 //CondSvr的接入ID
+		2   require     string                          sZoneSvr;                //ZoneSvr的服务器地址
+		3   require     int                             iState;                  //状态 EAccountStatus
+		4   require     long                            lTimeStamp;              //写入时间戳
+		5   require     int                             iLastZoneID;             //最后登录分区
+	};
+	
+	//好友列表
+	struct TFriendListDB
+	{
+		0  optional     vector<TAccountID>              vFriendList; 
+	};
+	
+	//好友列表DB
+	struct TFriendDB
+	{
+		0  optional     TFriendListDB                  stFriendList;          //好友列表
+	};
+	
+	
+	
+	//邮件附件
+	struct TAccessoryItem
+	{
+	    0   optional    int                              iItemID;         //物品ID
+		1   optional    int                              iItemNum;        //物品数量
+		2   optional    short                            shItemType;      //物品类型
+	};
+
+	
+	//邮件信息
+	struct TMailItem
+	{
+		0   optional    unsigned int                     iID;              //邮件ID
+		1   optional    short                            nMailType;        //邮件类型
+		2   optional    long                             lRetainTime;      //有效时间(0表示永久有效)
+		3   optional    long                             lShowTime;        //显示时间
+		4   optional    byte                             cStatus;          //邮件状态 E_MAIL_STATUS
+		5   optional    string                           sTitle;           //邮件标题
+		6   optional    string                           sContent;         //邮件内容
+		7   optional    vector<TAccessoryItem>           vAccessoryItem;  //邮件附件         
+        8   optional    long                             lSendTime;        //发送时间
+	};
+	
+	//邮件列表
+	struct TMailList
+	{
+	    0   optional   vector<TMailItem>                 vecMailItem;     //邮件列表
+	};
+	
+	struct TBoxStateItem
+    {
+	   0 optional int    iBoxId;        //宝箱ID
+	   1 optional short  iFreeTimes;    //免费次数
+	   2 optional int    iNextFreeTM;   //下一次的免费时间
+    };
+	
+};

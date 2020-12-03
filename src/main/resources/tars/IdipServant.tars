@@ -1,0 +1,51 @@
+#include "../Data/CommData.tars"
+#include "../Data/Account.tars"
+
+
+module JSX
+{
+
+interface IdipServant
+{
+	/**
+	 * 发送邮件
+	 * @param(input), vecAccountID 用户名
+	 * @param(input), iMailId 邮件类型
+	 * @param(output), stMailItem 邮件
+	 * @返回值：返回 0 成功,   其它 失败
+	 */
+    int SendMail(vector<Account::TAccountID> vecAccountID, int iMailId, out vector<Account::TAccountID> vecSuccAccountID,out vector<Account::TAccountID> vecFailAccountID );
+	
+	/**
+	 * 删除邮件数据
+	 * @param(input), vecAccountID 用户名
+	 * @param(input), iMailId 邮件ID
+	 * @返回值：返回 0 成功,  其它 失败
+	 */
+	int DelMail(vector<Account::TAccountID> vecAccountID, int iMailId, out vector<Account::TAccountID> vecSuccAccountID,out vector<Account::TAccountID> vecFailAccountID);
+	
+	/**
+	* 拉取玩家TAccountData数据
+	* @param(input), vecAccountID 用户名
+	* @param(output), stAccountData 数据
+	* @返回值：返回 0 成功,  其它 失败
+	*/
+	int QueryPlayerData(Account::TAccountID stAccountID, out Account::TAccountData stAccountData);
+	
+	
+	//根据uin 查询玩家所玩过的区的基本数据
+	int QueryPalyerGameData(unsigned int uUin, out vector<Account::TPlayerRoleInfo> vecPlayerGameInfo);
+	
+		/**
+	 * 发送邮件
+	 * @param(input), vecAccountID 用户名
+	 * @param(input), stMailItem 邮件信息
+	 * @param(input), sSendName 发送者的名字
+	 * @param(output),  邮件
+	 * @返回值：返回 0 成功,   其它 失败
+	 */
+    int PlatSendMail(vector<Account::TAccountID> vecAccountID, Account::TMailItem stMailItem, string sSendName,
+     out vector<Account::TAccountID> vecSuccAccountID,out vector<Account::TAccountID> vecFailAccountID );
+};
+
+}; 

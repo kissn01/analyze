@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yoooum.dao.NaturalDao">
+
+
+    <select id="lottery" resultType="com.yoooum.domain.Natural">
+      SELECT
+      cost_type as costType,
+      COUNT(DISTINCT uin) AS prosonNum,
+      SUM(cost_num) AS moneys,
+      SUM(cost_num)/COUNT(DISTINCT uin) AS avgMoney
+      FROM ${tbName}
+      WHERE tabID=#{chapterId}
+      <if test="checkId==1">
+          AND register_time &gt; #{begRegTs}
+          AND register_time &lt; #{endRegTs}
+      </if>
+      <if test="platformId!=null and platformId!=0">
+         AND platform_id=#{platformId}
+      </if>
+      GROUP BY cost_type
+    </select>
+
+    <!--玩家持有遗物详情-->
+        <!--1.遗物战力加成-->
+        <select id="maxCommonFight"  resultType="java.lang.Integer">
+            SELECT MAX(common_fight)
+            FROM ${tbName}
+            WHERE uin = #{uin}
+        </select>
+        <!--2.获取遗物id 和等级-->
+        <select id="getIdAndLv"  resultType="com.yoooum.domain.FightHero">
+            SELECT
+            natural_id AS roleId,
+            MAX(natural_lv) AS fightNum
+            FROM ${tbName}
+            WHERE uin = #{uin}
+            GROUP BY natural_id
+            ORDER BY natural_id
+        </select>
+        <!--3.获取套装id 和等级-->
+       <select id="getIdAndLvSuit"  resultType="com.yoooum.domain.FightHero">
+            SELECT suit_id AS roleId,MAX(suit_lv) AS fightNum
+            FROM  ${tbName}
+            WHERE uin =#{uin}
+            GROUP BY suit_id
+            ORDER BY suit_id
+        </select>
+
+
+</mapper>

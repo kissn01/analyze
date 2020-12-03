@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yoooum.dao.UserBehaviorDao">
+
+
+    <!--玩家游戏时间区间分布-->
+    <select id="queryGameTime" resultType="com.yoooum.domain.GameTimeSection">
+        SELECT
+        IFNULL(SUM(online_time&lt;=600),0)AS minTen,
+        IFNULL(SUM(600&lt;online_time AND online_time&lt;=1200),0) AS minTwenty,
+        IFNULL(SUM(1200&lt;online_time AND online_time&lt;=1800),0) AS minThirty,
+        IFNULL(SUM(1800&lt;online_time AND online_time&lt;=2400),0) AS minForty,
+        IFNULL(SUM(2400&lt;online_time AND online_time&lt;=3000),0) AS minFifty,
+        IFNULL(SUM(3000&lt;online_time AND online_time&lt;=3600),0) AS oneHour,
+        IFNULL(SUM(3600&lt;online_time AND online_time&lt;=7200),0) AS twoHour,
+        IFNULL(SUM(online_time&gt;7200),0) AS hours
+        FROM
+	    (SELECT SUM(online_time) AS online_time,uin
+	    FROM  ${tbName}
+        <where>
+            <if test="null!=platformId">
+                platform_id=#{platformId}
+            </if>
+            <if test="checkId==1">
+                AND register_time &gt;=#{begRegTs}
+                AND register_time &lt;=#{endRegTs}
+            </if>
+        </where>
+
+        GROUP BY uin) AS t
+
+    </select>
+
+    <!--指定玩家最高关卡和体力消耗-->
+    <select id="queryMaxLev" resultType="com.yoooum.domain.UserInfo">
+      SELECT IFNULL(COUNT(*)*2,0) AS manual,
+      IFNULL(MAX(arrive_stage),0) as maxPlann
+      FROM ${tbName}
+      WHERE uin=#{uin}
+      AND os_type=#{osType}
+      AND zone_id=#{zoneId}
+    </select>
+
+    <!--指定玩家当天体力消耗-->
+    <select id="queryManual" resultType="java.lang.Integer">
+        SELECT IFNULL(-SUM(change_count),0)
+        FROM  ${tbName}
+        WHERE uin=#{uin}
+        AND item_id= 11
+        AND reason=15
+        AND os_type=#{osType}
+        AND zone_id=#{zoneId}
+    </select>
+
+    <!--指定玩家当天充值金额-->
+    <select id="queryCharge" resultType="java.lang.Integer">
+        SELECT IFNULL(SUM(money),0) AS money
+        FROM ${tbName}
+        WHERE uin=#{uin}
+        AND os_type=#{osType}
+        AND zone_id=#{zoneId}
+
+    </select>
+
+    <!--指定玩家当天的在线时长和最终等级-->
+    <select id="queryOnlineTime" resultType="com.yoooum.domain.UserInfo">
+        SELECT IFNULL(SUM(online_time),0) AS onlineTime,
+        IFNULL(MAX(lvl),0) AS userLvl
+        FROM ${tbName}
+        WHERE uin=#{uin}
+        AND os_type=#{osType}
+        AND zone_id=#{zoneId}
+    </select>
+
+    <!--每个英雄出战次数-->
+    <select id="queryFightHero" resultType="com.yoooum.domain.FightHero">
+        SELECT hero_id AS roleId,
+        COUNT(*) AS fightNum
+        FROM ${tbName}
+        <where>
+            <if test="null!=platformId">
+                platform_id=#{platformId}
+            </if>
+            <if test="checkId==1">
+                AND register_time &gt;= #{begRegTs}
+                AND register_time &lt;= #{endRegTs}
+            </if>
+        </where>
+        GROUP BY hero_id
+        ORDER BY hero_id
+    </select>
+
+    <!--英雄出战总次数 dau-->
+    <select id="queryFightSum" resultType="com.yoooum.domain.FightHero">
+        SELECT COUNT(*) AS fightNum,
+        COUNT(DISTINCT uin) AS roleId
+        FROM ${tbName}
+        <where>
+            <if test="null!=platformId">
+                platform_id=#{platformId}
+            </if>
+            <if test="checkId==1">
+                AND register_time &gt;= #{begRegTs}
+                AND register_time &lt;= #{endRegTs}
+            </if>
+        </where>
+
+    </select>
+
+    <!--某章中每个英雄出战次数-->
+    <select id="queryPlannHero" resultType="com.yoooum.domain.FightHero">
+        SELECT hero_id AS roleId,
+        COUNT(*) AS fightNum
+        FROM ${tbName}
+        where arrive_stage &gt;= #{begChapterId}
+        AND arrive_stage &lt;= #{endChapterId}
+        <if test="null!=platformId">
+            AND platform_id=#{platformId}
+        </if>
+        <if test="checkId==1">
+           AND register_time &gt;= #{begRegTs}
+           AND register_time &lt;= #{endRegTs}
+        </if>
+        GROUP BY hero_id
+        ORDER BY hero_id
+    </select>
+
+    <!--玩家等级分布-->
+    <select id="queryUserLevel" resultType="com.yoooum.domain.UserLevel">
+        SELECT t.lvl AS userLevel,COUNT(*) AS userNum
+        FROM
+            (SELECT MAX(level_after) AS lvl
+            FROM ${tbName}
+            <where>
+                <if test="null!=platformId">
+                     platform_id=#{platformId}
+                </if>
+                <if test="checkId==1">
+                    AND register_time &gt;= #{begRegTs}
+                    AND register_time &lt;= #{endRegTs}
+                </if>
+            </where>
+            GROUP BY uin)AS t
+        GROUP BY t.lvl
+    </select>
+
+    <!--留存用户等级成长跟踪-->
+    <select id="queryLevel"  resultType="com.yoooum.domain.Plann">
+        SELECT lv AS levelId,COUNT(uin) AS userNum
+        FROM(
+            SELECT MAX(level_after)AS lv,uin
+            FROM   ${tbName}
+            WHERE ts &gt;=#{begDay}
+            AND   ts &lt;=#{endDay}
+            AND   register_time &lt;=#{regEndDay}
+            AND   register_time &gt;=#{regBegDay}
+            <if test="platformId!=null">
+                AND platform_id=#{platformId}
+            </if>
+            GROUP BY uin
+        ) AS t
+        GROUP BY t.lv
+    </select>
+
+    <!--玩家道具查询-->
+    <select id="queryItemFlow" resultType="com.yoooum.domain.UserItemFlow">
+        SELECT ts,reason,item_id AS itemId,
+        change_count AS changeCount,
+        after_count AS afterCount
+        FROM ${tbName}
+        WHERE uin=#{uin}
+        AND zone_id=#{zoneId}
+    </select>
+
+    <!--玩家充值查询-->
+    <select id="queryUserCharge" resultType="com.yoooum.domain.EventCharge">
+        SELECT FROM_UNIXTIME(ts)AS ts, platform_id AS platformId,
+        item_id AS itemId,money,diamond,after_diamond AS afterDiamond,
+        history_diamond AS historyDiamond
+         FROM ${tbName}
+        WHERE uin = #{uin}
+        ORDER BY ts DESC
+    </select>
+
+
+</mapper>

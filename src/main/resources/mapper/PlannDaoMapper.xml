@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yoooum.dao.PlannDao">
+
+    <!--关卡通关情况分布-->
+    <select id="queryPlann" resultType="com.yoooum.domain.Plann">
+        SELECT
+        level_id AS levelId,
+        COUNT(uin) AS userNum
+        FROM
+        (
+            SELECT MAX(arrive_stage) AS level_id,uin
+            FROM  ${tbName}
+            <where>
+                <if test="platformId!=null">
+                    platform_id=#{platformId}
+                </if>
+                <if test="checkId==1">
+                    and  register_time &gt;= #{begRegTs}
+                    and  register_time &lt;= #{endRegTs}
+                </if>
+            </where>
+        GROUP BY uin
+        ) a
+        GROUP BY level_id
+    </select>
+
+    <!--关卡通关分析-->
+    <select id="queryPassCustoms" resultType="com.yoooum.domain.PassCustoms" >
+        SELECT
+        t1.level_id AS levelId,t2.passNum,t2.passCount,
+        t1.openNum,t2.passCount*100/t1.openNum AS passRate
+        FROM
+        (
+        SELECT level_id,COUNT(*) AS openNum
+        FROM EventFightLevel
+        WHERE FROM_UNIXTIME(ts) BETWEEN #{begDay} AND #{endDay}
+        <if test="platformId!=null">
+            and platform_id=#{platformId}
+        </if>
+        <if test="checkId==1">
+            and FROM_UNIXTIME( register_time ) BETWEEN #{begDay} AND #{endDay}
+        </if>
+        GROUP BY level_id
+        ) AS t1
+        LEFT JOIN
+        (
+        SELECT level_id,COUNT(DISTINCT uin) AS passNum,COUNT(*)  AS passCount
+        FROM EventFightLevel
+        WHERE FROM_UNIXTIME(ts) BETWEEN #{begDay} AND #{endDay}
+        <if test="platformId!=null">
+            and platform_id=#{platformId}
+        </if>
+        <if test="checkId==1">
+            and FROM_UNIXTIME( register_time ) BETWEEN #{begDay} AND #{endDay}
+        </if>
+        AND result = 1
+        GROUP BY level_id
+        ) AS t2
+        ON t1.level_id = t2.level_id
+    </select>
+
+    <!--关卡开启区间分布-->
+    <select id="queryPConsume" resultType="com.yoooum.domain.PlanOpenCount">
+        SELECT
+        my_date AS myDate,
+        CONVERT(SUM(open_count)/COUNT(DISTINCT uin),DECIMAL(10,2)) AS openAvg,
+        IFNULL(SUM(open_count=1),0)AS openOne,
+        IFNULL(SUM(open_count&gt;1 AND open_count&lt;=2),0)AS openTwo,
+        IFNULL(SUM(open_count&gt;2 AND open_count&lt;=3),0)AS openThree,
+        IFNULL(SUM(open_count&gt;3 AND open_count&lt;=4),0)AS openFour,
+        IFNULL(SUM(open_count&gt;4 AND open_count&lt;=5),0)AS openFive,
+        IFNULL(SUM(open_count&gt;5 AND open_count&lt;=10),0)AS openST,
+        IFNULL(SUM(open_count&gt;10),0) AS openGtT
+        FROM  myPlanOpenCount
+        WHERE  my_date BETWEEN #{begDay} AND #{endDay}
+        <if test="null!=platformId">
+            and platform_id=#{platformId}
+        </if>
+        <if test="checkId==1">
+            AND FROM_UNIXTIME( register_time ) BETWEEN #{begDay} AND #{endDay}
+        </if>
+
+
+    </select>
+
+    <!--主线副本的活跃人数-->
+    <select id="mainPerson" resultType="java.lang.Integer">
+        SELECT COUNT(DISTINCT uin)
+        FROM ${tbName}
+        <where>
+            <if test="null!=platformId">
+                 platform_id=#{platformId}
+            </if>
+        </where>
+    </select>
+    <!--各副本挑战人数-->
+    <select id="planPerson" resultType="com.yoooum.domain.FightHero">
+        SELECT activity_id DIV 10000 AS roleId,
+        COUNT(DISTINCT uin) AS fightNum
+        FROM ${tbName}
+        <where>
+            <if test="null!=platformId">
+                platform_id=#{platformId}
+            </if>
+        </where>
+        GROUP BY (activity_id DIV 10000)
+
+    </select>
+
+    <!--各副本用时区间-->
+    <select id="itemSection" resultType="com.yoooum.domain.ItemSection">
+        SELECT SUM(use_time&lt;=10)AS utime10,
+        SUM(use_time&gt;10 AND use_time&lt;=20)AS utime20,
+        SUM(use_time&gt;20 AND use_time&lt;=30)AS utime30,
+        SUM(use_time&gt;30 AND use_time&lt;=40)AS utime40,
+        SUM(use_time&gt;40 AND use_time&lt;=50)AS utime50,
+        SUM(use_time&gt;50 AND use_time&lt;=60)AS utime60,
+        SUM(use_time&gt;60 AND use_time&lt;=70)AS utime70,
+        SUM(use_time&gt;70 AND use_time&lt;=80)AS utime80,
+        SUM(use_time&gt;80 AND use_time&lt;=90)AS utime90,
+        SUM(use_time&gt;90 AND use_time&lt;=100)AS utime100
+        FROM  ${tbName}
+        WHERE (activity_id DIV 10000) =#{checkType}
+        <if test="null!=platformId">
+            AND platform_id=#{platformId}
+        </if>
+    </select>
+
+    <select id="queryNewPlay" resultType="com.yoooum.domain.FightHero">
+        SELECT placeType AS roleId,
+        COUNT(DISTINCT uin) AS fightNum
+        FROM ${tbName}
+        <where>
+            <if test="null!=platformId">
+                platform_id=#{platformId}
+            </if>
+        </where>
+        GROUP BY placeType;
+    </select>
+
+
+</mapper>

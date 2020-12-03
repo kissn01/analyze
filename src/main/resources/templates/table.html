@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script th:src="@{/table/jQuery-1.12.4/jquery-1.12.4.min.js}"></script>
+    <script th:src="@{/table/datatables.js}"></script>
+    <link rel="stylesheet" th:href="@{/table/datatables.css}">
+</head>
+<body>
+<button onclick="table.ajax.reload()">查询</button>
+
+<table id="example">
+
+</table>
+
+<script>
+
+$(document).ready(function () {
+    window.table =   $('#example').DataTable({
+            fnServerData: function (sSource, aoData, fnCallback) {  //你就当这个 是一个 查询执行器
+                $.ajax({
+                    type: "post",//用啥方式 //这个 对应后台 处理的类型   请求 基础类型   get 默认是查询  post 默认是 新增数据   杂七杂八 put 默认是修改 delete 默认是删除 restfulAPI 还有更多
+                    url: 'pty/contract',//查询后台那个url
+                    data: {searchDate:'2020-02-02',platformId:1,checkId:2},
+                    success: function (data) {
+                        fnCallback(data);
+                    }
+                });
+            },
+
+            "columns": [
+                {"data": "roleId", title: "角色"},
+                {"data": "fightNum", title: "数量"},
+                {"data": "name", title: "名字"}
+            ]
+        });
+    });
+</script>
+</body>
+</html>

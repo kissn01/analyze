@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yoooum.dao.OperationsDao">
+
+    <!--查询运营数据总览-->
+    <select id="queryOperationData" resultType="com.yoooum.domain.MyOperationData">
+        select *from ${tbName}
+        where myDate BETWEEN #{begDay} AND #{endDay}
+        <if test="null!=platformId">
+            and platformId=#{platformId}
+        </if>
+        order by myDate desc
+    </select>
+
+    <!--用户付费解析-->
+    <select id="queryAnalysisPay" resultType="com.yoooum.domain.MyOperationData">
+        select *from ${tbName}
+        where myDate BETWEEN #{begDay} AND #{endDay}
+        <if test="null!=platformId">
+            and platformId=#{platformId}
+        </if>
+        order by myDate desc
+    </select>
+
+    <!--查询玩家留存-->
+    <select id="queryRetention" resultType="com.yoooum.domain.MyUserRetention">
+        select *from ${tbName}
+        where myDate BETWEEN #{begDay} AND #{endDay}
+        <if test="null!=platformId">
+            and platformId=#{platformId}
+        </if>
+        order by myDate desc
+    </select>
+
+    <!--查询每小时注册人数-->
+    <select id="queryRegistByHour" resultType="com.yoooum.domain.RegistByHour">
+        SELECT HOUR(FROM_UNIXTIME(e.ts)) AS hourNum,
+        COUNT(*) AS peopleNum,
+        platform_id AS platformId
+        FROM ${tbName} AS e
+        WHERE e.ts &gt;= #{begTime}
+        AND e.ts &lt;= #{endTime}
+        <if test="platformId!=null">
+            and platform_id=#{platformId}
+        </if>
+        GROUP BY HOUR(FROM_UNIXTIME(e.ts))
+    </select>
+
+    <select id="queryOnlineInfo" resultType="com.yoooum.domain.OnlineInfo">
+        select *from onlineinfo
+        order by timeStamp desc
+        limit 100
+    </select>
+
+    <!--商城购买统计-->
+    <select id="queryShopping" resultType="com.yoooum.domain.Shopping">
+        SELECT
+        FROM_UNIXTIME(ts,'%Y年%m月%d日') AS myDate,goods_id AS goodId,
+        SUM(goods_count) buyCount,COUNT(DISTINCT uin)AS buyUser,
+        SUM(currency_count) AS sumMoney
+        FROM ${tbName}
+        WHERE ts &gt;= #{begDay}
+        AND ts &lt;= #{endDay}
+        <if test="platformId!=null">
+            and platform_id=#{platformId}
+        </if>
+        <if test="currencyType!=null">
+            and currency_id=#{currencyType}
+        </if>
+        GROUP BY goods_id
+        ORDER BY  goods_id desc
+    </select>
+
+    <!--商城直购统计-->
+    <select id="queryStoreBuy" resultType="com.yoooum.domain.DirectBuy">
+      SELECT item_id as itemId,COUNT(DISTINCT uin) as buyUser,COUNT(*) as buyCount
+      FROM ${tbName}
+      WHERE ts &gt;= #{begDay}
+      AND ts &lt;= #{endDay}
+      OR (item_id&gt;=13
+      AND item_id&lt;=18)
+      OR (item_id&gt;=100
+      AND item_id&lt;=102)
+      OR (item_id&gt;=1000
+      AND item_id&lt;=1999)
+      OR (item_id&gt;=12004
+      AND item_id&lt;=12013)
+      OR (item_id&gt;=13001
+      AND item_id&lt;=13013)
+      <if test="platformId!=null">
+          AND platform_id=#{platformId}
+      </if>
+      GROUP BY item_id
+    </select>
+
+
+    <!--查询充值情况-->
+    <select id="queryFCharge" resultType="com.yoooum.domain.FirstCharge">
+        SELECT
+        COUNT(DISTINCT uin) AS chargeSix,
+        COUNT(*)  AS chargeSixCount
+        FROM ${tbName}
+        WHERE money=#{money}
+        AND ts &gt;= #{begDay}
+        AND ts &lt;= #{endDay}
+        <if test="platformId!=null">
+            AND platform_id=#{platformId}
+        </if>
+    </select>
+
+    <!--钻石统计-->
+    <select id="queryDiamond" resultType="com.yoooum.domain.Diamond" >
+        select *from ${tbName}
+        where myDate BETWEEN #{begDay} AND #{endDay}
+        <if test="null!=platformId">
+            and platformId=#{platformId}
+        </if>
+        order by myDate desc
+    </select>
+
+    <!--玩家钻石消耗途径分布-->
+    <select id="subDiamond" resultType="com.yoooum.domain.Plann">
+        SELECT reason as levelId,SUM(change_count) as userNum
+        FROM ${tbName}
+        WHERE item_id=2
+        AND ts &gt;= #{begDay}
+        AND ts &lt;= #{endDay}
+        AND change_count&lt;0
+        <if test="null!=platformId">
+            and platform_id=#{platformId}
+        </if>
+        GROUP BY reason
+    </select>
+
+    <!--用户充值区间分布人数-->
+    <select id="queryChargeNum" resultType="com.yoooum.domain.UserCharge">
+        SELECT
+        SUM(money&lt;1000)  AS sumMoney10,
+        SUM(1000&lt;=money  AND money&lt;3000) AS sumMoney30,
+        SUM(3000&lt;=money  AND money&lt;5000) AS sumMoney50,
+        SUM(5000&lt;=money  AND money&lt;10000) AS sumMoney100,
+        SUM(10000&lt;=money AND money&lt;20000) AS sumMoney200,
+        SUM(20000&lt;=money AND money&lt;30000) AS sumMoney300,
+        SUM(30000&lt;=money AND money&lt;50000) AS sumMoney500,
+        SUM(money&gt;=50000) AS sumTop500
+        FROM
+        (SELECT SUM(money) AS money,uin
+        FROM ${tbName}
+        <where>
+        <if test="null!=platformId">
+             platform_id=#{platformId}
+        </if>
+        </where>
+        GROUP BY uin)AS t
+    </select>
+
+    <!--用户充值区间分布次数-->
+    <select id="queryChargeCount" resultType="com.yoooum.domain.UserCharge">
+        SELECT
+        SUM(money&lt;1000)  AS sumMoney10,
+        SUM(1000&lt;=money  AND money&lt;3000) AS sumMoney30,
+        SUM(3000&lt;=money  AND money&lt;5000) AS sumMoney50,
+        SUM(5000&lt;=money  AND money&lt;10000) AS sumMoney100,
+        SUM(10000&lt;=money AND money&lt;20000) AS sumMoney200,
+        SUM(20000&lt;=money AND money&lt;30000) AS sumMoney300,
+        SUM(30000&lt;=money AND money&lt;50000) AS sumMoney500,
+        SUM(money&gt;=50000) AS sumTop500
+        FROM ${tbName}
+        <where>
+            <if test="null!=platformId">
+            platform_id=#{platformId}
+            </if>
+        </where>
+    </select>
+
+    <!--用户充值区间分布次数-->
+    <select id="queryChargeSumOrCount" resultType="com.yoooum.domain.Plann">
+        SELECT COUNT(*) AS levelId,
+        COUNT(DISTINCT uin) AS  userNum
+        FROM ${tbName}
+        WHERE money BETWEEN #{minMoney} AND #{maxMoney}
+        <if test="null!=platformId">
+            AND platform_id=#{platformId}
+        </if>
+    </select>
+
+    <!--LTV-->
+    <select id="queryLtv" resultType="com.yoooum.domain.Ltv">
+        SELECT *
+        FROM ${tbName}
+        WHERE myDate BETWEEN #{begTs} AND  #{endTs}
+        <if test="null!=platformId">
+            and platform_id=#{platformId}
+        </if>
+        order by myDate desc
+    </select>
+
+
+    <!--Ltv1:充值金额-->
+    <select id="queryChargesSum" resultType="int">
+        SELECT IFNULL(SUM(money)/100,0)
+        FROM ${tbName}
+        WHERE register_time &gt;=#{begTs}
+        AND  register_time&lt;=#{endTs}
+        <if test="null!=platformId">
+            AND platform_id=#{platformId}
+        </if>
+    </select>
+
+    <!--道具消耗或增加-->
+    <select id="ItemChangeSum" resultType="com.yoooum.domain.ItemFlow">
+        SELECT reason,
+        SUM(change_count) AS itemSum
+        FROM ${tbName}
+        <if test="type==1">
+            WHERE change_count &gt; 0
+        </if>
+        <if test="type==2">
+            WHERE change_count &lt; 0
+        </if>
+        GROUP BY reason;
+        <if test="null!=platformId">
+            AND platform_id=#{platformId}
+        </if>
+    </select>
+
+
+    <!--钻石 总增量-->
+    <select id="queryDiamondAdd" resultType="com.yoooum.domain.Plann">
+        SELECT reason AS levelId,
+        SUM(change_count) AS userNum
+        FROM   ${tbName}
+        WHERE  change_count&gt;0
+        <if test="null!=platformId">
+            AND platform_id=#{platformId}
+        </if>
+        GROUP BY reason
+    </select>
+
+    <!--钻石总消耗-->
+    <select id="queryDiamondSub" resultType="int">
+        select -sum(change_count)
+        from ${tbName}
+        where change_count &lt;0
+        <if test="null!=platformId">
+            AND platform_id=#{platformId}
+        </if>
+    </select>
+
+    <!--钻石总存量-->
+    <select id="queryDiamondAfterCount" resultType="int">
+        SELECT SUM(after_count) FROM (
+          SELECT uin,after_count FROM(
+            SELECT uin, after_count
+            FROM ${tbName}
+            where 1=1
+            <if test="null!=platformId">
+                AND platform_id=#{platformId}
+            </if>
+          ORDER BY id DESC)AS t
+        GROUP BY uin)AS q
+
+    </select>
+
+</mapper>
